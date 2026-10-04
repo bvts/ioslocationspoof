@@ -1,0 +1,68 @@
+================================================================================
+                    LOCATIONCONTROL - HOW TO RUN
+================================================================================
+
+PROJECT FOLDER:
+C:\Users\Creep\Downloads\PROJECTS\locationcontrol
+
+
+--------------------------------------------------------------------------------
+OPTION 1: THE EASIEST WAY (1-CLICK)
+--------------------------------------------------------------------------------
+1. Go to:
+   C:\Users\Creep\Downloads\PROJECTS\locationcontrol
+
+2. Double-click:
+   START_SERVER.bat
+
+   That's it! A black window will open and run the companion server.
+   Leave that window open while using the app.
+
+
+--------------------------------------------------------------------------------
+OPTION 2: USING POWERSHELL / COMMAND PROMPT
+--------------------------------------------------------------------------------
+1. Open PowerShell or Command Prompt.
+
+2. Run:
+   python -m locationctl serve
+   (or simply: locationctl serve)
+
+3. You will see:
+   ======== Running on http://0.0.0.0:8765 ========
+
+
+--------------------------------------------------------------------------------
+HOW TO USE FROM YOUR IPHONE
+--------------------------------------------------------------------------------
+1. Connect your iPhone 13 to your PC using the USB cable.
+   Unlock your iPhone screen (tap "Trust" if it asks).
+
+2. Make sure your iPhone is on your home Wi-Fi.
+
+3. Open the "LocationControl" app on your iPhone.
+
+4. In the app settings / companion setup, make sure the URL is:
+   http://192.168.1.93:8765
+
+5. On the map:
+   - Tap anywhere in the world to drop a pin (or search for an address).
+   - Tap the blue "SPOOF LOCATION" button.
+   - The badge will turn GREEN ("SPOOFING ACTIVE").
+   - Open Apple Maps / Google Maps on your phone to confirm your new location!
+
+
+--------------------------------------------------------------------------------
+HOW TO KEEP THE SPOOF ACTIVE AFTER UNPLUGGING & LEAVING THE HOUSE
+--------------------------------------------------------------------------------
+1. While plugged in, spoof your desired location (status is green).
+2. DO NOT press STOP in the app.
+3. DO NOT stop the PC server.
+4. Simply unplug the USB cable from your iPhone!
+5. iOS will freeze that fake location in memory.
+6. Important: Turn off Wi-Fi on your iPhone when outside (in iPhone Settings > Wi-Fi)
+   so apps don't triangulate nearby router signals.
+7. To restore real GPS when you come back:
+   Either plug back in and tap STOP, or just restart your iPhone!
+
+================================================================================
