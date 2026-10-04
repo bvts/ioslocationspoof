@@ -377,6 +377,8 @@
     const stateBadge = document.getElementById('stateBadge');
     const searchInput = document.getElementById('searchInput');
 
+    let currentTileLayer = null;
+
     // Initialize Map
     function initMap() {
       map = L.map('map', {
@@ -384,9 +386,7 @@
         attributionControl: false
       }).setView([48.8584, 2.2945], 13); // Default: Eiffel Tower
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-      }).addTo(map);
+      setupMapTiles();
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -394,6 +394,32 @@
         userHasCustomSelection = true;
         selectLocation(e.latlng.lat, e.latlng.lng);
       });
+    }
+
+    async function setupMapTiles() {
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const cfg = await res.json();
+          const tileUrl = cfg.tile_url || 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+          if (currentTileLayer) {
+            map.removeLayer(currentTileLayer);
+          }
+          currentTileLayer = L.tileLayer(tileUrl, {
+            maxZoom: 19,
+            subdomains: 'abcd'
+          }).addTo(map);
+          return;
+        }
+      } catch (err) {
+        console.warn("Could not load /api/config, falling back to default basemap:", err);
+      }
+      if (!currentTileLayer) {
+        currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          subdomains: 'abcd'
+        }).addTo(map);
+      }
     }
 
     // Select Coordinate
@@ -450,36 +476,50 @@
       }
     }
 
-    // Reverse Geocode
+    // Reverse Geocode via server proxy to prevent browser CORS / 403 Forbidden
     async function reverseGeocode(lat, lon) {
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-        const data = await res.json();
-        if (data && data.display_name) {
-          placeDisplay.innerText = data.display_name.split(',').slice(0, 3).join(',');
+        const res = await fetch(`/api/geocode/reverse?lat=${lat}&lon=${lon}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.name) {
+            placeDisplay.innerText = data.name.split(',').slice(0, 3).join(',');
+            return;
+          }
         }
       } catch (err) {
-        // Silently keep coordinate
+        // Silently preserve coordinate display
       }
     }
 
-    // Search
+    // Search via server proxy
     searchInput.addEventListener('keydown', async (e) => {
       if (e.key === 'Enter' && searchInput.value.trim()) {
+        const rawQuery = searchInput.value.trim();
         try {
-          const query = encodeURIComponent(searchInput.value.trim());
-          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
+          searchInput.disabled = true;
+          const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(rawQuery)}`);
           const data = await res.json();
-          if (data && data.length > 0) {
-            const first = data[0];
+          if (data && data.success && data.results && data.results.length > 0) {
+            const first = data.results[0];
             const lat = parseFloat(first.lat);
             const lon = parseFloat(first.lon);
             userHasCustomSelection = true;
             map.flyTo([lat, lon], 14);
-            selectLocation(lat, lon, first.display_name);
+            selectLocation(lat, lon, first.name);
+            statusBanner.style.display = "none";
+          } else {
+            const msg = data && data.message ? data.message : `No results found for "${rawQuery}".`;
+            statusBanner.className = "status-banner error";
+            statusBanner.style.display = "block";
+            statusBanner.innerText = `Search failed: ${msg}`;
           }
         } catch (err) {
-          console.error("Search error:", err);
+          statusBanner.className = "status-banner error";
+          statusBanner.style.display = "block";
+          statusBanner.innerText = `Search error: ${err.message}. Check connection.`;
+        } finally {
+          searchInput.disabled = false;
         }
       }
     });

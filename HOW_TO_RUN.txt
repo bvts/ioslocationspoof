@@ -1,68 +1,84 @@
 ================================================================================
-                    LOCATIONCONTROL - HOW TO RUN
+                    LOCATIONCONTROL - HOW TO RUN & TROUBLESHOOT
 ================================================================================
 
-PROJECT FOLDER:
+PROJECT DIRECTORY:
 C:\Users\Creep\Downloads\PROJECTS\locationcontrol
 
 
 --------------------------------------------------------------------------------
-OPTION 1: THE EASIEST WAY (1-CLICK)
+1. STARTING THE COMPANION SERVER
 --------------------------------------------------------------------------------
-1. Go to:
-   C:\Users\Creep\Downloads\PROJECTS\locationcontrol
+Option A (Easiest - 1 Click):
+  Simply double-click:
+    START_SERVER.bat
+  A window will open and display:
+    [+] Web Map UI:           http://localhost:8765
+    [+] iPhone Companion API: http://<YOUR_LOCAL_IP>:8765
 
-2. Double-click:
-   START_SERVER.bat
-
-   That's it! A black window will open and run the companion server.
-   Leave that window open while using the app.
-
-
---------------------------------------------------------------------------------
-OPTION 2: USING POWERSHELL / COMMAND PROMPT
---------------------------------------------------------------------------------
-1. Open PowerShell or Command Prompt.
-
-2. Run:
-   python -m locationctl serve
-   (or simply: locationctl serve)
-
-3. You will see:
-   ======== Running on http://0.0.0.0:8765 ========
+Option B (Command Line):
+  Open PowerShell or Command Prompt in this folder and run:
+    python -m locationctl serve
+    (or: locationctl serve)
 
 
 --------------------------------------------------------------------------------
-HOW TO USE FROM YOUR IPHONE
+2. CONNECTING & SPOOFING FROM YOUR IPHONE
 --------------------------------------------------------------------------------
-1. Connect your iPhone 13 to your PC using the USB cable.
-   Unlock your iPhone screen (tap "Trust" if it asks).
+1. Connect your iPhone to your PC with the USB cable.
+   - Unlock your iPhone screen.
+   - Tap "Trust This Computer" if prompted and enter your iPhone passcode.
 
-2. Make sure your iPhone is on your home Wi-Fi.
+2. Open the "LocationControl" app on your iPhone.
+   - If prompted for Companion API URL, enter the IP shown in the server window:
+     Example: http://192.168.1.93:8765
+   - Tap "Test Connection" to confirm it connects.
 
-3. Open the "LocationControl" app on your iPhone.
-
-4. In the app settings / companion setup, make sure the URL is:
-   http://192.168.1.93:8765
-
-5. On the map:
-   - Tap anywhere in the world to drop a pin (or search for an address).
-   - Tap the blue "SPOOF LOCATION" button.
-   - The badge will turn GREEN ("SPOOFING ACTIVE").
-   - Open Apple Maps / Google Maps on your phone to confirm your new location!
+3. On the interactive map:
+   - Tap anywhere to drop a pin, or type a landmark/city in the search bar.
+   - Tap the blue button: "SPOOF LOCATION".
+   - The badge turns GREEN ("• SPOOFING ACTIVE").
+   - Check Google Maps, Apple Maps, Tinder, Uber, etc. on your phone—your GPS is changed!
 
 
 --------------------------------------------------------------------------------
-HOW TO KEEP THE SPOOF ACTIVE AFTER UNPLUGGING & LEAVING THE HOUSE
+3. KEEPING THE SPOOF ACTIVE AFTER LEAVING YOUR HOUSE
 --------------------------------------------------------------------------------
-1. While plugged in, spoof your desired location (status is green).
-2. DO NOT press STOP in the app.
-3. DO NOT stop the PC server.
-4. Simply unplug the USB cable from your iPhone!
-5. iOS will freeze that fake location in memory.
-6. Important: Turn off Wi-Fi on your iPhone when outside (in iPhone Settings > Wi-Fi)
-   so apps don't triangulate nearby router signals.
-7. To restore real GPS when you come back:
-   Either plug back in and tap STOP, or just restart your iPhone!
+1. While plugged into your PC, spoof your desired coordinates (badge is green).
+2. DO NOT tap "STOP" in the app.
+3. Simply unplug the USB cable from your iPhone!
+4. Apple's iOS location service (locationd) freezes that simulated coordinate in memory.
+5. Important when outside: Turn OFF Wi-Fi in iPhone Settings > Wi-Fi (so apps
+   cannot cross-reference nearby router BSSID addresses).
+6. To restore your real GPS when you return:
+   Either plug back into the PC and tap STOP, or simply RESTART your iPhone
+   (Hold Volume Down + Power -> slide to power off).
+
+
+--------------------------------------------------------------------------------
+4. WHY DID THE APP STOP OPENING AFTER 7 DAYS? (SIDELOADLY RE-SIGNING)
+--------------------------------------------------------------------------------
+If you installed the app using Sideloadly with a free Apple ID:
+- Apple strictly enforces a 7-day expiration on free developer certificates.
+- After 7 days, iOS will not launch the app ("App No Longer Available").
+- FIX (Takes 30 seconds):
+  1. Open Sideloadly on your PC.
+  2. Plug your iPhone in via USB.
+  3. Drag LocationControl.ipa into Sideloadly.
+  4. Click "Start" to re-sign and install. Your settings will be preserved!
+
+
+--------------------------------------------------------------------------------
+5. MAP CONFIGURATION & API KEYS (.env)
+--------------------------------------------------------------------------------
+By default, the server uses free, high-contrast dark CartoDB tiles and server-proxied
+OpenStreetMap geocoding with no API key required.
+
+If you wish to use a custom provider (Geoapify, Mapbox, Stadia Maps):
+1. Copy .env.example to .env
+2. Set your provider and key:
+     MAP_PROVIDER=geoapify
+     MAP_API_KEY=your_key_here
+3. Restart the server. The Web Map UI will automatically use your custom provider!
 
 ================================================================================

@@ -199,6 +199,38 @@ class Doctor:
                 )
             )
 
+        # 7. Map & Geocoding Configuration
+        try:
+            from ..config.manager import ConfigManager
+            cfg = ConfigManager().config
+            provider = (cfg.map_provider or "carto").lower()
+            if provider in ("geoapify", "mapbox", "stadia") and not cfg.map_api_key:
+                items.append(
+                    DiagnosticItem(
+                        name="Map & Geocoding",
+                        status="WARN",
+                        detail=f"Provider '{provider}' selected but MAP_API_KEY is not set in .env",
+                        recommendation=f"Add MAP_API_KEY=your_key to .env or switch MAP_PROVIDER=carto for free tiles.",
+                    )
+                )
+            else:
+                has_key_str = " (API Key active)" if cfg.map_api_key else " (Free / No key required)"
+                items.append(
+                    DiagnosticItem(
+                        name="Map & Geocoding",
+                        status="OK",
+                        detail=f"Provider: {provider}{has_key_str}",
+                    )
+                )
+        except Exception as e:
+            items.append(
+                DiagnosticItem(
+                    name="Map Configuration",
+                    status="WARN",
+                    detail=f"Could not verify map configuration: {e}",
+                )
+            )
+
         return DiagnosticReport(
             platform=os_name,
             python_version=py_ver,

@@ -39,6 +39,22 @@ async def test_server_routes():
         assert res_data["success"] is False
         assert res_data["error"] == "LATITUDE_OUT_OF_BOUNDS"
 
+        # Test GET /api/config
+        resp = await client.get("/api/config")
+        assert resp.status == 200
+        config_data = await resp.json()
+        assert "tile_url" in config_data
+        assert "map_provider" in config_data
+        assert "has_api_key" in config_data
+
+        # Test GET /api/geocode/search with empty query
+        resp = await client.get("/api/geocode/search?q=")
+        assert resp.status == 400
+
+        # Test GET /api/geocode/reverse with invalid coordinates
+        resp = await client.get("/api/geocode/reverse?lat=invalid&lon=invalid")
+        assert resp.status == 400
+
         # Test POST /api/clear
         resp = await client.post("/api/clear")
         assert resp.status == 200

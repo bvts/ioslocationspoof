@@ -1,17 +1,15 @@
 @echo off
 title LocationControl Companion Server
-echo ========================================================
-echo       LocationControl PC Companion Server
-echo ========================================================
+echo Starting LocationControl PC Companion Server...
 echo.
-echo Your PC IP Address is: 192.168.1.93
-echo In the iPhone app, set Companion API URL to:
-echo     http://192.168.1.93:8765
-echo.
-echo Make sure your iPhone is connected via USB and unlocked.
-echo.
-echo Starting server on http://0.0.0.0:8765 ...
-echo ========================================================
 cd /d "%~dp0pc-controller"
 python -m locationctl serve
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo ========================================================
+    echo Server exited with an error.
+    echo If Python is missing dependencies, run:
+    echo     pip install -r requirements.txt
+    echo ========================================================
+)
 pause
